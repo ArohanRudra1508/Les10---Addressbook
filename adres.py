@@ -1,7 +1,9 @@
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import messagebox
+from tkinter.filedialog import *
 import tkinter as tk
+
 
 root = Tk()
 root.title("Address Book")
@@ -24,7 +26,7 @@ def reset():
 def save():
     fout = asksaveasfile(defaultextension = ".txt")
     if fout:
-        print(adresbook.file = fout)
+        print(adresbook, file = fout)
         reset()
     else:
         messagebox.showinfo("Warning", "Your adressbook is not saved.")
@@ -41,7 +43,7 @@ def open():
 
 def update():
     key = name_ent.get()
-    if key = "":
+    if key == "":
         messagebox.showinfo("Warning", "Name has not been filled.")
     else:
         if key not in adresbook.keys():
@@ -49,23 +51,62 @@ def update():
         else:
             adresbook[key] = email_ent.get()
 
+def hover(event):
+    newwin = Toplevel(root)
+    index = lis.curselection()
+    contact = ""
+    if index:
+        key = lis.get(index)
+        contact += "NAME:" + key + "\n \n"
+        details = adresbook[key]
+        contact += "EMAIL:" + details[0] + "\n"
+        contact += "ADDRESS:" + details[1] + "\n"
+        contact += "PHONE NUMBER:" + details[2] + "\n"
+
+    l = Label(newwin)
+    l.grid(row = 0, column = 0)
+    l.configure(text = contact)
+def edit():
+    clear()
+    index = lis.curselection()
+    if index:
+        name_ent.insert(0, lis.get(index))
+        details = adresbook[name_ent.get()]
+        email_ent.insert(0, details[0])
+        adres_ent.insert(0, details[1])
+        phone_ent.insert(0, details[2])
+    else:
+        messagebox.showinfo("Warning", "Please select a name first.")
+def delete():
+    index = lis.curselection()
+    if index:
+        del adresbook[lis.get(index)]
+        lis.delete(index)
+        clear()
+    else:
+        messagebox.showinfo("Warning", "Please select a name first.")
+
 lab = Label(root, text = "Address Book", font = ("Arial", 30, "bold"))
 lab.grid(row = 0, column = 0, columnspan = 5)
 
-openbut = tk.Button(root, text = "Open", fg = "red", bg = "blue", activebackground = "blue")
+openbut = tk.Button(root, text = "Open", fg = "red", bg = "blue", activebackground = "blue", command = open)
 openbut.grid(row = 1, column = 3, padx = 10, pady = 10)
 
-savebut = tk.Button(root, text = "Save", fg = "red", bg = "blue", activebackground = "blue")
+savebut = tk.Button(root, text = "Save", fg = "red", bg = "blue", activebackground = "blue", command = save)
 savebut.grid(row = 1, column = 4, padx = 10, pady = 10)
 
-editbut = tk.Button(root, text = "Edit", fg = "red", bg = "blue", activebackground = "blue")
-editbut.grid(row = 7, column = 3, padx = 10, pady = 10)
+editbut = tk.Button(root, text = "Edit", fg = "red", bg = "blue", activebackground = "blue", command = edit)
+editbut.grid(row = 8, column = 3, padx = 10, pady = 10)
 
-delbut = tk.Button(root, text = "Delete", fg = "red", bg = "blue", activebackground = "blue")
-delbut.grid(row = 7, column = 4, padx = 10, pady = 10)
+delbut = tk.Button(root, text = "Delete", fg = "red", bg = "blue", activebackground = "blue", command = delete)
+delbut.grid(row = 8, column = 4, padx = 10, pady = 10)
+
+addbut = tk.Button(root, text = "Add", fg = "red", bg = "blue", activebackground = "blue", command = update)
+addbut.grid(row = 7, column = 3, padx = 10, pady = 10)
 
 lis = Listbox(root, width = 30, height = 20)
 lis.grid(row = 3, column = 0, columnspan = 3, rowspan = 5, padx = 10, pady = 10)
+lis.bind('<<ListboxSelect>>', hover)
 
 name_lab = Label(root, text = "Name")
 name_lab.grid(row = 3, column = 3)
